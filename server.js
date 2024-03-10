@@ -2,13 +2,13 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const app = express();
-const PORT = 3002;
+const PORT = 3003;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-
+// GET requests
 app.get('/notes', (req, res) => {
     res.sendFile(path.join(__dirname, './public/notes.html'))
 });
@@ -16,7 +16,6 @@ app.get('/notes', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, './public/index.html'));
 })
-
 
 app.get('/api/notes', (req, res) => {
     fs.readFile(path.join(__dirname, './db/db.json'), 'utf8', (err, jsonData) => {
@@ -66,10 +65,10 @@ app.post('/api/notes', (req, res) => {
                 // Convert string into JSON object
                 const parsedNotes = JSON.parse(data);
 
-                // Add a new review
+                // Add a new note
                 parsedNotes.push(newNote);
 
-                // Write updated reviews back to the file
+                // Write updated notes back to the file
                 fs.writeFile(
                     './db/db.json',
                     JSON.stringify(parsedNotes, null, 4),
@@ -92,6 +91,40 @@ app.post('/api/notes', (req, res) => {
         res.status(500).json('Error in posting note');
     }
 });
+
+// DELETE request to delete a note
+app.delete('/api/notes/:id', (req, res) => {
+    const noteId = parseInt(req.params.id, 10); // Ensures the ID is an integer
+    fs.readFile(path.join(__dirname, './db/db.json'), 'utf8', (err, data) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+        // Parse the existing notes
+        const notes = JSON.parse(data);
+        // Find the index of the note with the given ID
+        const noteIndex = notes.findIndex(note => note.id === noteId);
+
+        // If the note wasn't found, return a 404 (Not Found) status
+        if (noteIndex === -1) {
+            return res.status(404).json({ error: 'Note not found' });
+        }
+
+        // Remove the note from the array
+        notes.splice(noteIndex, 1);
+
+        // Write the updated notes back to the file
+        fs.writeFile(path.join(__dirname, './db/db.json'), JSON.stringify(notes, null, 4), (writeErr) => {
+            if (writeErr) {
+                console.error(writeErr);
+                return res.status(500).json({ error: 'Error saving notes' });
+            }
+            // Respond to the request indicating the note was deleted
+            res.json({ message: 'Note deleted' });
+        });
+    });
+});
+
 
 app.listen(PORT, () =>
     console.log(`App listening at http://localhost:${PORT}`)
