@@ -8,15 +8,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-// GET requests
+// Return the notes.html file
 app.get('/notes', (req, res) => {
     res.sendFile(path.join(__dirname, './public/notes.html'))
 });
 
+// Return the index.html file
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, './public/index.html'));
 })
 
+// Read the db.json file and return all saved notes as JSON
 app.get('/api/notes', (req, res) => {
     fs.readFile(path.join(__dirname, './db/db.json'), 'utf8', (err, jsonData) => {
         if (err) {
@@ -40,7 +42,7 @@ app.get('/api/notes', (req, res) => {
 // });
 
 
-// POST request to add a note
+// POST request to add a note. Receives a new note to save on the request body, adds it to the db.json file, and then returns the new note to the user.
 app.post('/api/notes', (req, res) => {
     // Log that a POST request was received
     console.info(`${req.method} request received to add a note`);
@@ -50,7 +52,7 @@ app.post('/api/notes', (req, res) => {
 
     // If all the required properties are present
     if (title && text) {
-        // Variable for the object we will save
+        // Variable for the object will save
         const newNote = {
             title,
             text,
@@ -92,7 +94,7 @@ app.post('/api/notes', (req, res) => {
     }
 });
 
-// DELETE request to delete a note
+// DELETE request to delete a note based on query parameter containing the id
 app.delete('/api/notes/:id', (req, res) => {
     const noteId = parseInt(req.params.id, 10); // Ensures the ID is an integer
     fs.readFile(path.join(__dirname, './db/db.json'), 'utf8', (err, data) => {
