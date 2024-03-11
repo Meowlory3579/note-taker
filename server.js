@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const app = express();
-const PORT = 3003;
+const port = process.env.PORT || 3003
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -128,6 +128,6 @@ app.delete('/api/notes/:id', (req, res) => {
 });
 
 
-app.listen(PORT, () =>
-    console.log(`App listening at http://localhost:${PORT}`)
+app.listen(port, () =>
+    console.log(`App listening at http://localhost:${port}`)
 );
