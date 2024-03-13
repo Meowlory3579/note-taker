@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 
+// Get existing notes
 const getNotes = (req, res) => {
     fs.readFile(path.join(__dirname, '../db/db.json'), 'utf8', (err, jsonData) => {
         if (err) {
@@ -15,6 +16,7 @@ const getNotes = (req, res) => {
     });
 };
 
+// Create new note
 const createNote = (req, res) => {
     // Log that a POST request was received
     console.info(`${req.method} request received to add a note`);
@@ -63,6 +65,7 @@ const createNote = (req, res) => {
     }
 };
 
+// Delete note
 const deleteNote = (req, res) => {
     const noteId = parseInt(req.params.id, 10); // Ensures the ID is an integer
     fs.readFile(path.join(__dirname, '../db/db.json'), 'utf8', (err, data) => {
@@ -94,13 +97,5 @@ const deleteNote = (req, res) => {
         });
     });
 };
-
-// const getNote = (req, res) => {
-//     res.sendFile(path.join(__dirname, '../public/notes.html'));
-// };
-
-// const getIndex = (req, res) => {
-//     res.sendFile(path.join(__dirname, '../public/index.html'));
-// };
 
 module.exports = { getNotes, createNote, deleteNote };
